@@ -64,8 +64,6 @@ class TaskListViewController: UITableViewController {
         
         storageManager.saveContext()
     }
-    
-    
 }
 
 // MARK: - Setup UI
@@ -113,6 +111,7 @@ extension TaskListViewController {
 extension TaskListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
         let task = taskList[indexPath.row]
         let alert = UIAlertController(title: "Update task", message: "What do you want to do?", preferredStyle: .alert)
 

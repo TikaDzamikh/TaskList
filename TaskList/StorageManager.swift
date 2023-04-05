@@ -13,7 +13,7 @@ class StorageManager {
     
     private init() {}
     
-    lazy var persistentContainer: NSPersistentContainer = {
+    var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "TaskList")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -22,8 +22,6 @@ class StorageManager {
         })
         return container
     }()
-    
-    
     
     func saveContext() {
         let context = persistentContainer.viewContext
@@ -41,24 +39,23 @@ class StorageManager {
         let task = Task(context: persistentContainer.viewContext)
         return task
     }
-
     
     func deleteTask(_ task: Task) {
-            let context = persistentContainer.viewContext
-            context.delete(task)
-            saveContext()
-        }
+        let context = persistentContainer.viewContext
+        context.delete(task)
+        saveContext()
+    }
     
     func fetchTasks() -> [Task] {
         let context = persistentContainer.viewContext
         let fetchRequest = Task.fetchRequest()
-            
-            do {
-                let tasks = try context.fetch(fetchRequest)
-                return tasks
-            } catch {
-                print(error)
-                return []
-            }
+        
+        do {
+            let tasks = try context.fetch(fetchRequest)
+            return tasks
+        } catch {
+            print(error)
+            return []
         }
+    }
 }
