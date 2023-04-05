@@ -23,24 +23,33 @@ class TaskListViewController: UITableViewController {
     }
     
     private func addNewTask() {
-        showAlert(withTitle: "New Task", andMessage: "What do you want to do?")
+        
+        let alert = UIAlertController(title: "New Task", message: "What do you want to do?", preferredStyle: .alert)
+        showAlert(
+            alert,
+            action: UIAlertAction(title: "Save Task", style: .default) { [weak self] _ in
+                guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+                self?.save(task)
+            },
+            textFieldPlaceholder: "New Task",
+            textFieldText: ""
+        )
     }
     
     private func fetchData() {
         taskList = storageManager.fetchTasks()
     }
     
-    private func showAlert(withTitle title: String, andMessage message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let saveAction = UIAlertAction(title: "Save Task", style: .default) { [weak self] _ in
-            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
-            self?.save(task)
-        }
+
+    private func showAlert(_ alert: UIAlertController, action: UIAlertAction, textFieldPlaceholder: String, textFieldText: String) {
+        let alert = alert
+        let saveAction = action
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
         alert.addTextField { textField in
-            textField.placeholder = "New Task"
+            textField.placeholder = textFieldPlaceholder
+            textField.text = textFieldText
         }
         present(alert, animated: true)
     }
@@ -98,9 +107,6 @@ extension TaskListViewController {
         cell.contentConfiguration = content
         return cell
     }
-    
-    
-
 }
 
 // MARK: - UITableViewDelegate
@@ -109,18 +115,17 @@ extension TaskListViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         let task = taskList[indexPath.row]
         let alert = UIAlertController(title: "Update task", message: "What do you want to do?", preferredStyle: .alert)
-        let saveAction = UIAlertAction(title: "Save Task", style: .default) { [weak self] _ in
-            guard let taskName = alert.textFields?.first?.text, !taskName.isEmpty else { return }
-            self?.edit(task, and: taskName)
-            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        alert.addAction(saveAction)
-        alert.addAction(cancelAction)
-        alert.addTextField { textField in
-            textField.text = task.title
-        }
-        present(alert, animated: true)
+
+        showAlert(
+            alert,
+            action: UIAlertAction(title: "Save Task", style: .default) { [weak self] _ in
+                guard let taskName = alert.textFields?.first?.text, !taskName.isEmpty else { return }
+                self?.edit(task, and: taskName)
+                self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+            },
+            textFieldPlaceholder: "Task",
+            textFieldText: task.title ?? ""
+        )
     }
     
     private func edit(_ task: Task, and taskName: String) {
